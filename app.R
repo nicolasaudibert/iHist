@@ -1,9 +1,7 @@
 # General parameters
-# cssFile = "www/global.css"
-# defaultTheme = "flatly"
 defaultTheme = "spacelab"
-htmlHeaderFile = "interactive_histogram_display.html"
-labelsFile = "interactive_histogram_display.labels.txt"
+htmlHeaderFile = "iHist.html"
+labelsFile = "iHist.labels.txt"
 nRowsDisplayedInFilePreview = 20
 defaultBinsNumber = 10
 nStepsInScaleSettings = 10

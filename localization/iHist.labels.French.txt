@@ -1,0 +1,85 @@
+entry	displayedLabel
+windowTitle	iHist - Histogrammes interactifs
+datafileInputLabel	Fichier de données
+columnSeparatorSelectorLabel	Séparateur de colonnes
+sheetSelectorLabel	Feuille
+loadedFilePreviewDialogLabel	Prévisualisation du fichier de données
+loadedFilePreviewErrorMessage	Impossible de lire le fichier. Essayez avec un autre encodage et/ou vérifiez que le format de votre fichier est bien compatible.
+loadedFilePreviewWarningMessage	Erreur lors de la lecture du fichier. Vérifiez que l'affichage ci-dessous est conforme à votre fichier de données.
+nLinesDisplayedInPreviewLabel	Nombre maximum de lignes affichées
+sliderInputLabel	Nombre de classes affichées
+fileEncodingLabel	Encodage du fichier
+generalInstructionsOnTabDisplay	Le contenu des onglets à droite de "Choix des variables" n'est affiché que si une variable dépendante est sélectionnée, avec au minimum 2 valeurs numériques incluses dans le filtre
+variablesChoiceTabLabel	Choix des variables
+overlaidCurvesTabLabel	Courbes superposées
+overlaidLinesTabLabel	Lignes superposées
+generalDisplayParametersTabLabel	Paramètres de l'histogramme
+descriptiveStatisticsTabLabel	Statistiques descriptives
+figureExportTabLabel	Export figure
+nonNumericColsIncludedInDependentVariableChoiceLabel	Inclure les colonnes non reconnues comme numériques dans le choix de la variable dépendante
+dependentVariableInputLabel	Variable dépendante
+noNumericVariableWarning	Aucune variable numérique !
+filterVariableInputLabel	Variable de filtrage
+filterValueInputLabel	Valeur sélectionnée
+groupColInFilterTable	Groupe
+countsColInFilterTable	Effectif
+includeColInFilterTable	Inclure
+emptyCellsLabel	(cellules vides)
+selectAllButtonLabel	Tous groupes
+unselectAllButtonLabel	Aucun
+revertSelectionButtonLabel	Inverser sélection
+displayAsFrequenciesFlagLabel	Affichage des fréquences (choix par défaut = effectifs)
+overlaidCurvesSection	Affichage de courbes superposées
+displayDensityFlagLabel	Densité de la distribution (bleu)
+displayNormFlagLabel	Distribution normale de même moyenne et même écart-type (rouge)
+overlaidVerticalLinesSection	Affichage de lignes verticales superposées
+displayMeanAndConfidenceIntervalFlagLabel	Moyenne et intervalle de confiance (violet)
+confidenceIntervalProbLabel	Probabilité IC
+confidenceIntervalComputationMethodLabel	Méthode calcul IC
+confidenceIntervalComputationMethodParametricLabel	Paramétrique
+confidenceIntervalComputationMethodBootstrapPercentileLabel	Non-paramétrique (bootstrap, méthode des centiles)
+nReplicationsForBootstrapCIcomputationLabel	N répl. (bootstrap)
+displayMedianAndQuantilesFlagLabel	Médiane et quantiles (gris)
+lowDisplayedQuantilePercentageLabel	Quantile 1
+highDisplayedQuantilePercentageLabel	Quantile 2
+keepDisplayedQuantilesSymetricFlagLabel	Quantiles symétriques
+histogramLimitsModeLabel	Valeurs limites
+histogramLimitsModeChoiceAuto	Automatiques
+histogramLimitsModeChoiceFixed	Fixées
+histogramLowLimitLabel	Minimum
+histogramHighLimitLabel	Maximum
+nBinsUpdateOnDataChangeLabel	Choix du nombre de classes
+nBinsUpdateOnDataChangeChoiceAuto	Automatique
+nBinsUpdateOnDataChangeChoiceSet	Fixé
+plotDownloadFormatLabel	Format de l'image
+exportedPlotWidthLabel	Largeur
+exportedPlotHeightLabel	Hauteur
+exportedPlotUnitsLabel	Unité
+histogramSubstringInExportedImageName	_histogramme_
+binsSubstringInExportedImageName	classes
+histogramVerticalAxisLabelFrequencies	fréquence (% du total)
+histogramVerticalAxisLabelCounts	effectif
+nDecimalPlacesInputLabel	Nombre maximum de décimales affichées dans les statistiques descriptives
+descriptiveStatisticsGeneralInfo	Statistiques descriptives
+nValuesPrompt	Nombre de valeurs : 
+meanValuePrompt	Moyenne : 
+sdValuePrompt	Écart-type : 
+medianValuePrompt	Médiane : 
+firstQuartileValuePrompt	1er quartile : 
+thirdQuartileValuePrompt	3ème quartile : 
+interquartileRangeValuePrompt	Écart interquartile : 
+modeValuePrompt	Mode : 
+minValuePrompt	Minimum : 
+maxValuePrompt	Maximum : 
+rangeValuePrompt	Etendue : 
+displayClassesDetailInTableFlagLabel	Affichage du détail des valeurs de la classe sélectionnée dans un tableau
+binwidthPrompt	Largeur des classes : 
+binClickingGeneralInfo	Exploration interactive des valeurs représentées dans l'histogramme
+binClickingPrompt	Cliquez sur une barre de l'histogramme pour afficher la plage de valeurs correspondantes ainsi que l'effectif de cette classe.
+clickedBinPromptPart1	Classe n° 
+clickedBinPromptPart2	 sélectionnée (
+nValuesInClickedBinPrompt	 valeur(s) = 
+proportionOfTotalInClickedBinPrompt	% du total
+selectedDataDownloadFormatLabel	Format de fichier
+selectedDataDownloadInfo	Exporter le sous-ensemble sélectionné
+defaultSuffixInExportedDataFileName	_donneesSelectionnees
