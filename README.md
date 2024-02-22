@@ -7,10 +7,10 @@ Try the app online:
 
 ## Installation and execution instructions (local)
 You will need R (https://cran.r-project.org/) and RStudio (https://posit.co/download/rstudio-desktop/).
-1) Download files: clone the repository, or use Code / Download ZIP and unzip archive
+1) Download files: clone the repository, or use Code / Download ZIP and unzip the archive you downloaded
 2) Open app.R in RStudio
 3) If you don't already have all required packages installed, you will be prompted to install them
-4) Use the Run App button on the topright corner of the code to run the App in a browser
+4) Use the Run App button on the topright corner of the code to run the app in a browser
 
 ## Allowing the use of larger data files
 The default max file size upload is set to 1MB. To allow the use of larger input data files, change the value of maxUploadSizeMB in app.R.
