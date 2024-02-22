@@ -1,3 +1,13 @@
+# load required libraries
+require(tools)
+require(shiny)
+require(shinythemes)
+require(tidyverse)
+require(rhandsontable)
+require(MASS)
+require(boot)
+require(readxl)
+
 # General parameters
 defaultTheme = "spacelab"
 htmlHeaderFile = "iHist.html"
@@ -31,18 +41,6 @@ medianAndQuantilesLinesColor = "gray47"
 overlaidVerticalLinesSize = 1
 overlaidVerticalLinesTypeMain = "solid"
 overlaidVerticalLinesTypeSecondary = "dashed"
-enableExcelCompatibility = TRUE
-
-# load required libraries
-library(tools)
-library(shiny)
-library(shinythemes)
-library(tidyverse)
-library(rhandsontable)
-library(MASS)
-library(boot)
-if(enableExcelCompatibility)
-  library(readxl)
 
 # debug parameters
 debugFlag = F
