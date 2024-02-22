@@ -28,8 +28,8 @@ emptyCellsLabel	(empty cells)
 selectAllButtonLabel	All groups
 unselectAllButtonLabel	None
 revertSelectionButtonLabel	Reverse selection
-displayAsFrequenciesFlagLabel	Display of frequencies (default choice = numbers)
-overlaidCurvesSection	Display of superimposed curves
+displayAsFrequenciesFlagLabel	Display as frequencies (default choice = numbers)
+overlaidCurvesSection	Display superimposed curves
 displayDensityFlagLabel	Density of the distribution (blue)
 displayNormFlagLabel	Normal distribution with the same mean and standard deviation (red)
 overlaidVerticalLinesSection	Display of superimposed vertical lines
