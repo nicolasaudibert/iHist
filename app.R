@@ -9,52 +9,52 @@ require(boot)
 require(readxl)
 
 # General parameters
-defaultTheme = "spacelab"
-htmlHeaderFile = "iHist.html"
-labelsFile = "iHist.labels.txt"
-nRowsDisplayedInFilePreview = 20
-defaultBinsNumber = 10
-nStepsInScaleSettings = 10
-availableColumnSeparatorsDisplay = c("tabulation (\\t)", "espace", "virgule (,)" ,"point-virgule (;)")
-availableColumnSeparators = c("\t", " ", ",", ";")
-availableEncodingsDisplay = c("Unicode (UTF-8)","Windows (latin-1)", "Windows (latin-9)", "Mac OS (MacRoman)", "inconnu")
-availableEncodings = c("UTF-8","latin-1", "latin-9", "macintosh", "unknown")
-availableOutputFormats = c("PNG","PDF", "SVG", "EPS")
-availableOutputFormatExtensions = c(".png", ".pdf", ".svg", ".eps")
-availableUnitsForImageExport = c("cm","in","mm")
-availableDataFileOutputFormats = c("XLSX", "TSV", "CSV")
-availableDataFileOutputFormatExtensions = c(".xlsx", ".tsv", ".csv")
-textSize = 14
-textSizeAxes = 12
-exportedImagesUnit = "cm"
-defaultExportedPlotWidth = 30
-defaultExportedPlotHeight = 20
-figureDisplayRefreshRateMilliseconds = 200
-maxUploadSizeMB = 1
-histogramBarsColor = "#75AADB"
-histogramSelectedBinColor = "#299AB3"
-overlaidDensityCurveColor = "blue"
-overlaidNormalCurveColor = "red"
-overlaidCurvesSize = 1
-meanAndCIlinesColor = "darkmagenta"
-medianAndQuantilesLinesColor = "gray47"
-overlaidVerticalLinesSize = 1
-overlaidVerticalLinesTypeMain = "solid"
-overlaidVerticalLinesTypeSecondary = "dashed"
+maxUploadSizeMB <- 1 # max data file upload size, modify to allow larger files
+defaultTheme <- "spacelab"
+htmlHeaderFile <- "iHist.html"
+labelsFile <- "iHist.labels.txt"
+nRowsDisplayedInFilePreview <- 20
+defaultBinsNumber <- 10
+nStepsInScaleSettings <- 10
+availableColumnSeparatorsDisplay <- c("tabulation (\\t)", "espace", "virgule (,)" ,"point-virgule (;)")
+availableColumnSeparators <- c("\t", " ", ",", ";")
+availableEncodingsDisplay <- c("Unicode (UTF-8)","Windows (latin-1)", "Windows (latin-9)", "Mac OS (MacRoman)", "inconnu")
+availableEncodings <- c("UTF-8","latin-1", "latin-9", "macintosh", "unknown")
+availableOutputFormats <- c("PNG","PDF", "SVG", "EPS")
+availableOutputFormatExtensions <- c(".png", ".pdf", ".svg", ".eps")
+availableUnitsForImageExport <- c("cm","in","mm")
+availableDataFileOutputFormats <- c("XLSX", "TSV", "CSV")
+availableDataFileOutputFormatExtensions <- c(".xlsx", ".tsv", ".csv")
+textSize <- 14
+textSizeAxes <- 12
+exportedImagesUnit <- "cm"
+defaultExportedPlotWidth <- 30
+defaultExportedPlotHeight <- 20
+figureDisplayRefreshRateMilliseconds <- 200
+histogramBarsColor <- "#75AADB"
+histogramSelectedBinColor <- "#299AB3"
+overlaidDensityCurveColor <- "blue"
+overlaidNormalCurveColor <- "red"
+overlaidCurvesSize <- 1
+meanAndCIlinesColor <- "darkmagenta"
+medianAndQuantilesLinesColor <- "gray47"
+overlaidVerticalLinesSize <- 1
+overlaidVerticalLinesTypeMain <- "solid"
+overlaidVerticalLinesTypeSecondary <- "dashed"
 
 # debug parameters
-debugFlag = F
-interactiveDebugFlag = F
+debugFlag <- F
+interactiveDebugFlag <- F
 
 getLabelOrPrompt <- function(code, labelsAndPromptsReference) {
-  selectedRow = labelsAndPromptsReference[labelsAndPromptsReference$entry==code,]
+  selectedRow <- labelsAndPromptsReference[labelsAndPromptsReference$entry==code,]
   if(nrow(selectedRow)>0) {
     return(selectedRow$displayedLabel[1])
   } else {
     return("-- unknown label or prompt --")
   }
 }
-displayedLabelsAndPrompts = read.table(file = labelsFile, sep = "\t", header = T, encoding = "UTF-8", quote = "", stringsAsFactors = F)
+displayedLabelsAndPrompts <- read.table(file = labelsFile, sep = "\t", header = T, encoding = "UTF-8", quote = "", stringsAsFactors = F)
 
 myApp <- shinyApp(
   # UI side of the app: define layout
