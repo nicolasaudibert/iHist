@@ -1,5 +1,6 @@
 # iHist - Interactive histograms
 Shiny app to import a data file, choose a dependent variable, and display a histogram that you can parameterize and explore in an interactive way.
+
 Try the app online:
 - English version: https://shiny.laboratoirephonetiquephonologie.fr/iHist/
 - French version: https://shiny.laboratoirephonetiquephonologie.fr/iHist_fr/
