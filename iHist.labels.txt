@@ -1,0 +1,85 @@
+entry	displayedLabel
+windowTitle	iHist - Interactive histograms
+datafileInputLabel	Data file
+columnSeparatorSelectorLabel	Column separator
+sheetSelectorLabel	Sheet
+loadedFilePreviewDialogLabel	Preview of the data file
+loadedFilePreviewErrorMessage	Unable to read the file. Try another encoding and/or check that your file format is compatible.
+loadedFilePreviewWarningMessage	Error while reading the file. Check that the display below is consistent with your data file.
+nLinesDisplayedInPreviewLabel	Maximum number of lines displayed
+sliderInputLabel	Number of classes displayed
+fileEncodingLabel	Encoding of the file
+generalInstructionsOnTabDisplay	The content of the tabs to the right of "Choice of variables" is only displayed if a dependent variable is selected, with at least 2 numerical values included in the filter
+variablesChoiceTabLabel	Choice of variables
+overlaidCurvesTabLabel	Overlapping curves
+overlaidLinesTabLabel	Overlapping lines
+generalDisplayParametersTabLabel	Histogram parameters
+descriptiveStatisticsTabLabel	Descriptive statistics
+figureExportTabLabel	Export figure
+nonNumericColsIncludedInDependentVariableChoiceLabel	Include columns not recognized as numeric in the choice of the dependent variable
+dependentVariableInputLabel	Dependent variable
+noNumericVariableWarning	No numeric variable !
+filterVariableInputLabel	Filter variable
+filterValueInputLabel	Selected value
+groupColInFilterTable	Group
+countsColInFilterTable	Number
+includeColInFilterTable	Include
+emptyCellsLabel	(empty cells)
+selectAllButtonLabel	All groups
+unselectAllButtonLabel	None
+revertSelectionButtonLabel	Reverse selection
+displayAsFrequenciesFlagLabel	Display as frequencies (default choice = numbers)
+overlaidCurvesSection	Display superimposed curves
+displayDensityFlagLabel	Density of the distribution (blue)
+displayNormFlagLabel	Normal distribution with the same mean and standard deviation (red)
+overlaidVerticalLinesSection	Display of superimposed vertical lines
+displayMeanAndConfidenceIntervalFlagLabel	Mean and confidence interval (purple)
+confidenceIntervalProbLabel	Probability IC
+confidenceIntervalComputationMethodLabel	IC calculation method
+confidenceIntervalComputationMethodParametricLabel	Parametric
+confidenceIntervalComputationMethodBootstrapPercentileLabel	Non-parametric (bootstrap, percentile method)
+nReplicationsForBootstrapCIcomputationLabel	N repl. (bootstrap)
+displayMedianAndQuantilesFlagLabel	Median and quantiles (gray)
+lowDisplayedQuantilePercentageLabel	Quantile 1
+highDisplayedQuantilePercentageLabel	Quantile 2
+keepDisplayedQuantilesSymetricFlagLabel	Symmetric quantiles
+histogramLimitsModeLabel	Limit values
+histogramLimitsModeChoiceAuto	Automatic
+histogramLimitsModeChoiceFixed	Fixed
+histogramLowLimitLabel	Minimum
+histogramHighLimitLabel	Maximum
+nBinsUpdateOnDataChangeLabel	Choice of the number of classes
+nBinsUpdateOnDataChangeChoiceAuto	Automatic
+nBinsUpdateOnDataChangeChoiceSet	Fixed
+plotDownloadFormatLabel	Image size
+exportedPlotWidthLabel	Width
+exportedPlotHeightLabel	Height
+exportedPlotUnitsLabel	Unit
+histogramSubstringInExportedImageName	_histogram_
+binsSubstringInExportedImageName	classes
+histogramVerticalAxisLabelFrequencies	frequency (% of total)
+histogramVerticalAxisLabelCounts	size
+nDecimalPlacesInputLabel	Maximum number of decimal places displayed in the descriptive statistics
+descriptiveStatisticsGeneralInfo	Descriptive statistics
+nValuesPrompt	Number of values : 
+meanValuePrompt	Mean: 
+sdValuePrompt	Standard deviation: 
+medianValuePrompt	Median: 
+firstQuartileValuePrompt	1st quartile: 
+thirdQuartileValuePrompt	3rd quartile: 
+interquartileRangeValuePrompt	Interquartile range: 
+modeValuePrompt	Mode: 
+minValuePrompt	Minimum: 
+maxValuePrompt	Maximum: 
+rangeValuePrompt	Range: 
+displayClassesDetailInTableFlagLabel	Display the details of the values of the selected class in a table
+binwidthPrompt	Class width: 
+binClickingGeneralInfo	Interactive exploration of the values represented in the histogram
+binClickingPrompt	Click on a bar of the histogram to display the range of corresponding values as well as the size of this class.
+clickedBinPromptPart1	Selected class no. 
+clickedBinPromptPart2	selected (
+nValuesInClickedBinPrompt	value(s) = 
+proportionOfTotalInClickedBinPrompt	% of total
+selectedDataDownloadFormatLabel	File format
+selectedDataDownloadInfo	Export selected subset
+defaultSuffixInExportedDataFileName	_selectedData
