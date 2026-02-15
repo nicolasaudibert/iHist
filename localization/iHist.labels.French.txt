@@ -83,3 +83,13 @@ proportionOfTotalInClickedBinPrompt	% du total
 selectedDataDownloadFormatLabel	Format de fichier
 selectedDataDownloadInfo	Exporter le sous-ensemble sélectionné
 defaultSuffixInExportedDataFileName	_donneesSelectionnees
+columnSeparatorTabulation	tabulation (\t)
+columnSeparatorSpace	espace
+columnSeparatorComma	virgule (,)
+columnSeparatorSemicolon	point-virgule (;)
+encodingUnknown	inconnu
+browseInputFileLabel	Sélection fichier
+noFileSelectedPrompt	Aucun fichier
+filePreviewCancelButtonLabel	Annuler
+filePreviewValidateButtonLabel	Charger
+naStringsFileImportLabel	Valeurs indéfinies (un code par ligne)

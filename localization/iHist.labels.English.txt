@@ -28,8 +28,8 @@ emptyCellsLabel	(empty cells)
 selectAllButtonLabel	All groups
 unselectAllButtonLabel	None
 revertSelectionButtonLabel	Reverse selection
-displayAsFrequenciesFlagLabel	Display as frequencies (default choice = numbers)
-overlaidCurvesSection	Display superimposed curves
+displayAsFrequenciesFlagLabel	Display of frequencies (default choice = numbers)
+overlaidCurvesSection	Display of superimposed curves
 displayDensityFlagLabel	Density of the distribution (blue)
 displayNormFlagLabel	Normal distribution with the same mean and standard deviation (red)
 overlaidVerticalLinesSection	Display of superimposed vertical lines
@@ -83,3 +83,13 @@ proportionOfTotalInClickedBinPrompt	% of total
 selectedDataDownloadFormatLabel	File format
 selectedDataDownloadInfo	Export selected subset
 defaultSuffixInExportedDataFileName	_selectedData
+columnSeparatorTabulation	tabulation (\t)
+columnSeparatorSpace	space
+columnSeparatorComma	comma (,)
+columnSeparatorSemicolon	semicolon (;)
+encodingUnknown	unknown
+browseInputFileLabel	File selection
+noFileSelectedPrompt	No file
+filePreviewCancelButtonLabel	Cancel
+filePreviewValidateButtonLabel	Load
+naStringsFileImportLabel	Undefined values (one code per line)
