@@ -2,23 +2,24 @@
 require(tools)
 require(shiny)
 require(shinythemes)
+require(shinyjs)
 require(tidyverse)
 require(rhandsontable)
+require(DT)
 require(MASS)
 require(boot)
 require(readxl)
+require(readODS)
 
 # General parameters
-maxUploadSizeMB <- 1 # max data file upload size, modify to allow larger files
+maxUploadSizeMB <- 20 # max data file upload size, modify to allow larger files
 defaultTheme <- "spacelab"
 htmlHeaderFile <- "iHist.html"
 labelsFile <- "iHist.labels.txt"
 nRowsDisplayedInFilePreview <- 20
 defaultBinsNumber <- 10
 nStepsInScaleSettings <- 10
-availableColumnSeparatorsDisplay <- c("tabulation (\\t)", "espace", "virgule (,)" ,"point-virgule (;)")
 availableColumnSeparators <- c("\t", " ", ",", ";")
-availableEncodingsDisplay <- c("Unicode (UTF-8)","Windows (latin-1)", "Windows (latin-9)", "Mac OS (MacRoman)", "inconnu")
 availableEncodings <- c("UTF-8","latin-1", "latin-9", "macintosh", "unknown")
 availableOutputFormats <- c("PNG","PDF", "SVG", "EPS")
 availableOutputFormatExtensions <- c(".png", ".pdf", ".svg", ".eps")
@@ -46,6 +47,7 @@ overlaidVerticalLinesTypeSecondary <- "dashed"
 debugFlag <- F
 interactiveDebugFlag <- F
 
+# Localization function
 getLabelOrPrompt <- function(code, labelsAndPromptsReference) {
   selectedRow <- labelsAndPromptsReference[labelsAndPromptsReference$entry==code,]
   if(nrow(selectedRow)>0) {
@@ -54,13 +56,34 @@ getLabelOrPrompt <- function(code, labelsAndPromptsReference) {
     return("-- unknown label or prompt --")
   }
 }
+
+# Load localization data
 displayedLabelsAndPrompts <- read.table(file = labelsFile, sep = "\t", header = T, encoding = "UTF-8", quote = "", stringsAsFactors = F)
+
+# Get localized constants
+availableColumnSeparatorsDisplay <- c(
+  getLabelOrPrompt("columnSeparatorTabulation", displayedLabelsAndPrompts),
+  getLabelOrPrompt("columnSeparatorSpace", displayedLabelsAndPrompts),
+  getLabelOrPrompt("columnSeparatorComma", displayedLabelsAndPrompts),
+  getLabelOrPrompt("columnSeparatorSemicolon", displayedLabelsAndPrompts)
+)
+availableEncodingsDisplay <- c(
+  "Unicode (UTF-8)",
+  "Windows (latin-1)", 
+  "Windows (latin-9)", 
+  "Mac OS (MacRoman)", 
+  getLabelOrPrompt("encodingUnknown", displayedLabelsAndPrompts)
+)
 
 myApp <- shinyApp(
   # UI side of the app: define layout
   ui = fluidPage(
     theme = shinytheme(defaultTheme),
-    # includeCSS(cssFile),
+    useShinyjs(),
+    # Define favicon
+    tags$head(
+      tags$link(rel = "icon", type = "image/png", href = "iHist.png?v=1")
+    ),
     # Page title
     titlePanel("", windowTitle = getLabelOrPrompt("windowTitle", displayedLabelsAndPrompts)),
     # General HTML description on top of the page (loaded from an external headerless HTML file)
@@ -74,7 +97,7 @@ myApp <- shinyApp(
         'text/tsv',
         'text/tab-separated-values,text/plain',
         'application/vnd.ms-excel',
-        # 'application/vnd.oasis.opendocument.spreadsheet',
+        'application/vnd.oasis.opendocument.spreadsheet',
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
         )
       ),
@@ -223,8 +246,10 @@ myApp <- shinyApp(
     values <- reactiveValues(
        selectedFile = NULL,
        loadedFileType = NULL,
+       inputFileExtension = NULL,
        columnSeparator = "\t",
        selectedFileEncoding = "UTF-8",
+       naStringsFileImport = "",
        availableSheetNames = NULL,
        selectedSheetIndex = 1,
        nLinesDisplayedInPreview = nRowsDisplayedInFilePreview,
@@ -268,51 +293,64 @@ myApp <- shinyApp(
     
     # Dialog box displayed when a text file is loaded to let the user choose the column separator
     displayLoadedFilePreviewDialog <- function(selectedFile, defaultMainParameterValue) {
-      # output$inputFilePreview <- renderRHandsontable({NULL})
       output$inputFilePreview <- renderTable(NULL)
       output$inputFilePreviewMessage <- renderText(NULL)
-      output$loadedFilePreviewMainParameterSelector <- renderUI({
+      output$loadedFilePreviewMainParameterSelectorUI <- renderUI({
         if(values$loadedFileType == "txt")
           selectInput("loadedFilePreviewMainParameterSelector", getLabelOrPrompt("columnSeparatorSelectorLabel", displayedLabelsAndPrompts), availableColumnSeparatorsDisplay, selected = defaultMainParameterValue)
         else {
           if(values$loadedFileType == "xlsx") {
-            # wb <- loadWorkbook(selectedFile)
-            # values$availableSheetNames <- names(getSheets(wb))
             values$availableSheetNames <- excel_sheets(selectedFile)
-          # } else if(values$loadedFileType == "xls") {
-          #   # values$availableSheetNames <- sheetNames(selectedFile)
-          #   values$availableSheetNames <- excel_sheets(selectedFile)
-          # } else if(values$loadedFileType == "ods") {
-          #   values$availableSheetNames <- ods_sheets(selectedFile)
-          } else
+          } else if(values$loadedFileType == "ods") {
+            values$availableSheetNames <- list_ods_sheets(selectedFile)
+          }
+          else
             values$availableSheetNames <- NULL
-
           selectInput("loadedFilePreviewMainParameterSelector", getLabelOrPrompt("sheetSelectorLabel", displayedLabelsAndPrompts), values$availableSheetNames)
         }
       })
-      output$fileEncoding <- renderUI({
+      output$fileEncodingUI <- renderUI({
         selectInput("fileEncoding", getLabelOrPrompt("fileEncodingLabel", displayedLabelsAndPrompts),availableEncodingsDisplay)
       })
-      output$selectedDataDownloadInfo <- renderUI({
-        HTML(str_c("<b>", getLabelOrPrompt("selectedDataDownloadInfo", displayedLabelsAndPrompts), "</b>"))
+      output$naStringsFileImportUI <- renderUI({
+        textAreaInput("naStringsFileImport", getLabelOrPrompt("naStringsFileImportLabel", displayedLabelsAndPrompts), "", rows = 3)
       })
+      
+      # JS code to bind return key (code 13) with validate button and escape (code 27) with cancel button
+      jsCodeBindKeysWithPreviewModalButtons <- '
+          $(document).keyup(function(event) {
+            if (event.keyCode == 13) {
+                $("#validateLoadedFilePreviewButton").click();
+            } else if (event.keyCode == 27) {
+                $("#cancelLoadedFilePreviewButton").click();
+            }
+          });
+          '
 
       showModal(
         modalDialog(
+          tags$script(HTML(jsCodeBindKeysWithPreviewModalButtons)),
           size = "l",
-          # includeCSS(cssFile),
           fluidRow(
-            column(6, uiOutput("loadedFilePreviewMainParameterSelector")),
-            column(6, uiOutput("fileEncoding"))
+            column(6, uiOutput("loadedFilePreviewMainParameterSelectorUI")),
+            # Conditional display of file encoding only for text files
+            if(values$loadedFileType == "txt") {
+              column(6, uiOutput("fileEncodingUI"))
+            } else {
+              column(6, NULL)  # Empty column for Excel or ODS files
+            }
           ),
-          numericInput("nLinesDisplayedInPreview", label = getLabelOrPrompt("nLinesDisplayedInPreviewLabel", displayedLabelsAndPrompts), value = nRowsDisplayedInFilePreview, min = 5, step = 5),
+          fluidRow(
+            column(6, numericInput("nLinesDisplayedInPreview", label = getLabelOrPrompt("nLinesDisplayedInPreviewLabel", displayedLabelsAndPrompts), value = nRowsDisplayedInFilePreview, min = 5, step = 5)),
+            column(6, uiOutput("naStringsFileImportUI"))
+          ),
           htmlOutput("inputFilePreviewMessage"),
-          tableOutput("inputFilePreview"),
+          DT::dataTableOutput("inputFilePreview"),
           title = getLabelOrPrompt("loadedFilePreviewDialogLabel", displayedLabelsAndPrompts),
           easyClose = FALSE,
           footer = tagList(
-            actionButton("cancelColumnSeparatorChoiceButton","Cancel"),
-            actionButton("validateSelectedColumnSeparatorButton", "OK")
+            actionButton("cancelLoadedFilePreviewButton", getLabelOrPrompt("filePreviewCancelButtonLabel", displayedLabelsAndPrompts)),
+            actionButton("validateLoadedFilePreviewButton", getLabelOrPrompt("filePreviewValidateButtonLabel", displayedLabelsAndPrompts))
           )
         )
       )
@@ -320,126 +358,192 @@ myApp <- shinyApp(
       updateLoadedTextFilePreviewDisplay()
     }
     
-    # Update the data file preview
     updateLoadedTextFilePreviewDisplay <- function() {
-      df = loadDataFile(values$nLinesDisplayedInPreview)
+      df <- loadDataFile(values$nLinesDisplayedInPreview)
+      
       if(!is.null(df)) {
-        output$inputFilePreview <- renderTable(
+        # Convert to standard data.frame for compatibility
+        df <- as.data.frame(df)
+        
+        # Intelligent column width calculation
+        col_widths <- sapply(1:ncol(df), function(i) {
+          # Width based on content (all displayed rows)
+          displayed_rows <- min(values$nLinesDisplayedInPreview, nrow(df))
+          content_width <- max(nchar(as.character(df[1:displayed_rows, i])), na.rm = TRUE)
+          
+          # Width based on column name
+          header_width <- nchar(colnames(df)[i])
+          
+          # Take the maximum, with reasonable limits
+          max_width <- max(content_width, header_width, na.rm = TRUE)
+          
+          # Convert to pixels (approximate: ~8px per character + padding)
+          pixel_width <- max_width * 8 + 20
+          
+          # Limits: minimum 80px, maximum 300px
+          pmax(80, pmin(pixel_width, 300))
+        })
+        
+        # Build column definitions
+        column_defs <- list(
+          list(className = 'dt-center', targets = "_all")
+        )
+        
+        # Add width definitions
+        for(i in seq_along(col_widths)) {
+          column_defs[[length(column_defs) + 1]] <- list(
+            width = paste0(col_widths[i], "px"), 
+            targets = i - 1  # DT uses 0-based index
+          )
+        }
+        
+        output$inputFilePreview <- DT::renderDataTable(
           df,
-          spacing = 'xs',
-          bordered = TRUE,
-          striped = TRUE,
-          align = "c",
-          na = ""
+          options = list(
+            scrollX = TRUE,
+            scrollY = "300px",
+            dom = 't',
+            pageLength = 20,
+            ordering = FALSE,
+            searching = FALSE,
+            info = FALSE,
+            autoWidth = FALSE,
+            columnDefs = column_defs,
+            initComplete = JS(
+              "function(settings, json) {",
+              "this.api().columns.adjust();",
+              "}"
+            )
+          ),
+          rownames = FALSE,
+          class = "compact"
         )
       } else {
-        output$inputFilePreview <- renderTable(NULL)
+        output$inputFilePreview <- DT::renderDataTable(NULL)
       }
+      
       if(!is.null(values$associatedMessage)) {
         output$inputFilePreviewMessage <- renderText(HTML(paste0("<p>", values$associatedMessage, "</p>")))
-      } else
+      } else {
         output$inputFilePreviewMessage <- renderText(NULL)
+      }
     }
     
-    # Load the data file as an Excel spreadsheet or as a text file
-    # Return a data structure with the resulting data frame (or NULL in case of failure) and an optional error or warning message
+    # Load the data file as an Excel spreadsheet, ODS file, or text file
     loadDataFile <- function(nLoadedRows) {
       values$associatedMessage = NULL
       df <- tryCatch({
-        withCallingHandlers({
+          withCallingHandlers({
           if(values$loadedFileType == "xlsx") {
             if(is.null(nLoadedRows))
-              # extractedRowIndices = NULL
               nMaxRows <- Inf
             else  
-              # extractedRowIndices = 1:(nLoadedRows+1)
               nMaxRows <- nLoadedRows+1
-            # df = read.xlsx(
-            #   values$selectedFile,
-            #   values$selectedSheetIndex,
-            #   encoding = values$selectedFileEncoding,
-            #   check.names = F,
-            #   rowIndex = extractedRowIndices
-            # )
             df <- read_excel(
               path = values$selectedFile,
               sheet = values$selectedSheetIndex,
-              # encoding = values$selectedFileEncoding,
-              # check.names = F,
-              # rowIndex = extractedRowIndices
+              na = values$naStringsFileImport,
               n_max = nMaxRows
             )
-          # } else if(values$loadedFileType == "ods") {
-          #   # if(is.null(nLoadedRows))
-          #   #   extractedRowIndices = NULL
-          #   # else  
-          #   #   extractedRowIndices =  paste0("R1:R",nLoadedRows)
-          #   df = read_ods(
-          #     values$selectedFile,
-          #     values$selectedSheetIndex
-          #     #range = extractedRowIndices
-          #     )
-          } else if(values$loadedFileType == "txt") {
+          } else if(values$loadedFileType == "ods") {
             if(is.null(nLoadedRows))
-              nLoadedRows = -1
-              df = read.table(
-                values$selectedFile,
-                sep=values$columnSeparator,
-                header=T,
-                fileEncoding = values$selectedFileEncoding,
-                check.names = F,
-                nrows = nLoadedRows,
-                comment.char = ""
-              )
+              nMaxRows <- Inf
+            else  
+              nMaxRows <- nLoadedRows+1
+            df <- read_ods(
+              path = values$selectedFile,
+              sheet = values$selectedSheetIndex,
+              na = values$naStringsFileImport,
+              n_max = nMaxRows
+            )
+          } else if(values$loadedFileType == "txt") {
+              if(is.null(nLoadedRows))
+                nLoadedRows = Inf
+              df <- read_delim(
+                  values$selectedFile,
+                  delim=values$columnSeparator,
+                  locale = locale(encoding=values$selectedFileEncoding),
+                  na = values$naStringsFileImport,
+                  n_max = nLoadedRows,
+                  comment = "",
+                  show_col_types = F
+                )
           } else {
-            df = NULL
+            df <- NULL
           }
         }, warning = function(war) {
           values$associatedMessage = getLabelOrPrompt("loadedFilePreviewWarningMessage", displayedLabelsAndPrompts)
           invokeRestart("muffleWarning")
         })
       }, error = function(err) {
-        df = NULL
+        df <- NULL
         values$associatedMessage = getLabelOrPrompt("loadedFilePreviewErrorMessage", displayedLabelsAndPrompts)
       })
       if(!is.data.frame(df))
-        df = NULL
+        df <- NULL
       return(df)
     }
     
-    # Event observers for the column separator selection dialog
+    # Event observer for the column separator or sheet selection dialog
     observeEvent(input$loadedFilePreviewMainParameterSelector, {
       if(!is.null(input$loadedFilePreviewMainParameterSelector)) {
-        if(values$loadedFileType == "txt" && (values$columnSeparator != availableColumnSeparators[which(availableColumnSeparatorsDisplay == input$loadedFilePreviewMainParameterSelector)])) {
-          values$columnSeparator = availableColumnSeparators[which(availableColumnSeparatorsDisplay == input$loadedFilePreviewMainParameterSelector)]
-          updateLoadedTextFilePreviewDisplay()
-        }
-        else if(values$loadedFileType != "txt" && !is.null(values$availableSheetNames) && (values$selectedSheetIndex != which(input$loadedFilePreviewMainParameterSelector == values$availableSheetNames))) {
-          values$selectedSheetIndex = which(input$loadedFilePreviewMainParameterSelector == values$availableSheetNames)
-          updateLoadedTextFilePreviewDisplay()
+        if(values$loadedFileType == "txt") {
+          newSeparator <- availableColumnSeparators[which(availableColumnSeparatorsDisplay == input$loadedFilePreviewMainParameterSelector)]
+          if(values$columnSeparator != newSeparator) {
+            values$columnSeparator <- newSeparator
+            updateLoadedTextFilePreviewDisplay()
+          }
+        } else if(values$loadedFileType != "txt" && !is.null(values$availableSheetNames)) {
+          newSheetIndex <- which(input$loadedFilePreviewMainParameterSelector == values$availableSheetNames)
+          if(values$selectedSheetIndex != newSheetIndex) {
+            values$selectedSheetIndex <- newSheetIndex
+            updateLoadedTextFilePreviewDisplay()
+          }
         }
       }
-    })
+    }, priority = 100)
+    
+    # Observer for the number of lines displayed
     observeEvent(input$nLinesDisplayedInPreview, {
-      if(values$nLinesDisplayedInPreview != input$nLinesDisplayedInPreview) {
-        values$nLinesDisplayedInPreview = input$nLinesDisplayedInPreview
+      if(!is.null(input$nLinesDisplayedInPreview) && values$nLinesDisplayedInPreview != input$nLinesDisplayedInPreview) {
+        values$nLinesDisplayedInPreview <- input$nLinesDisplayedInPreview
         updateLoadedTextFilePreviewDisplay()
       }
-    })
+    }, priority = 100)
+    
+    # Observer for encoding
     observeEvent(input$fileEncoding, {
       if(!is.null(input$fileEncoding)) {
-        if(values$selectedFileEncoding != availableEncodings[which(availableEncodingsDisplay == input$fileEncoding)]) {
-          values$selectedFileEncoding = availableEncodings[which(availableEncodingsDisplay == input$fileEncoding)]
+        newEncoding <- availableEncodings[which(availableEncodingsDisplay == input$fileEncoding)]
+        if(values$selectedFileEncoding != newEncoding) {
+          values$selectedFileEncoding <- newEncoding
           updateLoadedTextFilePreviewDisplay()
         }
       }
-    })
-    observeEvent(input$validateSelectedColumnSeparatorButton, {
+    }, priority = 100)
+    
+    # Observer for strings considered as NA values
+    observeEvent(input$naStringsFileImport, {
+      if(!is.null(input$naStringsFileImport)) {
+        naStringsRaw <- input$naStringsFileImport
+        naStringsFileImportTmp <- str_split(naStringsRaw, pattern = "\\n", simplify = T)
+        if(!"" %in% naStringsFileImportTmp) {
+          naStringsFileImportTmp <- c("", naStringsFileImportTmp)
+        }
+        if(!identical(values$naStringsFileImport, naStringsFileImportTmp)) {
+          values$naStringsFileImport <- naStringsFileImportTmp
+          updateLoadedTextFilePreviewDisplay()
+        }
+      }
+    }, priority = 100)
+    
+    # Observers for the validation and cancel buttons of the preview modal
+    observeEvent(input$validateLoadedFilePreviewButton, {
       removeModal()
       df = loadDataFile(NULL)
       postProcessLoadedFile(df)
     })
-    observeEvent(input$cancelColumnSeparatorChoiceButton, {
+    observeEvent(input$cancelLoadedFilePreviewButton, {
       removeModal()
     })
     
@@ -452,17 +556,27 @@ myApp <- shinyApp(
       if (!is.null(infile)) {
         values$selectedFile = infile$datapath
         # Adapt loading method according to the file extension
-        inputFileExtension = file_ext(infile$datapath)
+        values$inputFileExtension = file_ext(infile$datapath)
         
-        if(inputFileExtension == "xlsx" || inputFileExtension == "XLSX" || inputFileExtension == "xls" || inputFileExtension == "XLS") {
+        if(values$inputFileExtension == "xlsx" || values$inputFileExtension == "XLSX" || values$inputFileExtension == "xls" || values$inputFileExtension == "XLS") {
           
           values$loadedFileType = "xlsx"
           displayLoadedFilePreviewDialog(values$selectedFile, NULL)
+          
+        } else if(values$inputFileExtension == "ods" || values$inputFileExtension == "ODS") {
 
-        } else if(inputFileExtension == "csv" || inputFileExtension == "CSV") {
+          values$loadedFileType = "ods"
+          displayLoadedFilePreviewDialog(values$selectedFile, NULL)
+
+        } else if(values$inputFileExtension == "csv" || values$inputFileExtension == "CSV") {
 
           values$loadedFileType = "txt"
           displayLoadedFilePreviewDialog(values$selectedFile, ",")
+          
+        } else if(values$inputFileExtension == "tsv" || values$inputFileExtension == "TSV") {
+          
+          values$loadedFileType = "txt"
+          displayLoadedFilePreviewDialog(values$selectedFile, "\t")
           
         } else {
 
@@ -925,14 +1039,6 @@ myApp <- shinyApp(
     
     # Update filter table and values when the user hits the 'select all' button
     observeEvent(input$selectAllButton, {
-      # output$selectedDataDetailsTable <- renderRHandsontable({NULL})
-      # values$filteredFiledata <- NULL
-      # values$histogramData <- NULL
-      # values$currentDatasetHistogram <- NULL
-      # values$clickedBinIndex <- NULL
-      # values$clickedSubset <- NULL
-      # values$clickedBinLowLimit <- NULL
-      # values$clickedBinHighLimit <- NULL
       # Get the contents of the rhandsontable as data frame
       filterDF = hot_to_r(input$filterValTable)
       if(!setequal(filterDF[,3], rep(TRUE, nrow(filterDF)))) {
@@ -962,14 +1068,6 @@ myApp <- shinyApp(
     
     # Update filter table and values when the user hits the 'unselect all' button
     observeEvent(input$unselectAllButton, {
-      # output$selectedDataDetailsTable <- renderRHandsontable({NULL})
-      # values$filteredFiledata <- NULL
-      # values$histogramData <- NULL
-      # values$currentDatasetHistogram <- NULL
-      # values$clickedBinIndex <- NULL
-      # values$clickedSubset <- NULL
-      # values$clickedBinLowLimit <- NULL
-      # values$clickedBinHighLimit <- NULL
       # Get the contents of the rhandsontable as data frame
       filterDF = hot_to_r(input$filterValTable)
       if(!setequal(filterDF[,3], rep(FALSE, nrow(filterDF)))) {
@@ -1000,14 +1098,6 @@ myApp <- shinyApp(
     # Update filter table and values when the user hits the 'revert selection' button
     observeEvent(input$revertSelectionButton, {
       values$lastParameterChangeTime = Sys.time()
-      # output$selectedDataDetailsTable <- renderRHandsontable({NULL})
-      # values$filteredFiledata <- NULL
-      # values$histogramData <- NULL
-      # values$currentDatasetHistogram <- NULL
-      # values$clickedBinIndex <- NULL
-      # values$clickedSubset <- NULL
-      # values$clickedBinLowLimit <- NULL
-      # values$clickedBinHighLimit <- NULL
       # Get the contents of the rhandsontable as data frame
       filterDF = hot_to_r(input$filterValTable)
       # Set checked modalities as unchecked and conversely
@@ -1217,6 +1307,10 @@ myApp <- shinyApp(
       df <- values$filedata
       if (is.null(df)) return(NULL)
       checkboxInput("displayClassesDetailInTableFlag", getLabelOrPrompt("displayClassesDetailInTableFlagLabel", displayedLabelsAndPrompts), TRUE, width="100%")
+    })
+    
+    output$selectedDataDownloadInfo <- renderUI({
+      HTML(str_c("<b>", getLabelOrPrompt("selectedDataDownloadInfo", displayedLabelsAndPrompts), "</b>"))
     })
     
     # Get a numeric vector with data to be plotted in the histogram, and update the bins number slider according to the vector length and values range
